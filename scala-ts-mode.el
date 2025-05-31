@@ -58,6 +58,13 @@
   :safe 'integerp
   :group 'scala-ts)
 
+(defcustom scala-ts-parameters-multiplier 1
+  "Multiplier number of offset indetion in parameters definition in `scala-ts-mode'."
+  :version "29.1"
+  :type 'integer
+  :safe 'integerp
+  :group 'scala-ts)
+
 (defvar scala-ts--syntax-table
   (let ((table (make-syntax-table)))
     ;; "." denotes punctuation
@@ -482,7 +489,8 @@ or node matching `treesit-defun-type-regexp' is found."
 ;; END
 
 (defvar scala-ts--indent-rules
-  (let ((offset scala-ts-indent-offset))
+  (let ((offset scala-ts-indent-offset)
+        (multiplier scala-ts-parameters-multiplier))
     `((scala
        ((node-is "^comment$") no-indent 0)
 
@@ -542,11 +550,11 @@ or node matching `treesit-defun-type-regexp' is found."
        ((parent-is "^template_body$") parent-bol ,offset)
        ((parent-is "^with_template_body$") parent-bol ,offset)
        ((parent-is "^field_expression$") parent-bol ,offset)
-       ((parent-is "^class_parameters$") parent-bol ,offset)
-       ((parent-is "^parameters$") parent-bol ,offset)
+       ((parent-is "^class_parameters$") parent-bol ,(* offset multiplier))
+       ((parent-is "^parameters$") parent-bol ,(* offset multiplier))
        ((parent-is "^arguments$") parent-bol ,offset)
        ((parent-is "^tuple_expression$") parent-bol ,offset)
-       
+
        ((node-is "definition") prev-sibling 0)
        ((node-is "declaration") prev-sibling 0)
        ((node-is "^enum_body$") prev-sibling 0)
